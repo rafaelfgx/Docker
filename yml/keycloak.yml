@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+    keycloak:
+        image: quay.io/keycloak/keycloak
+        container_name: keycloak
+        restart: always
+        depends_on:
+            - database
+        environment:
+            - KEYCLOAK_USER=admin
+            - KEYCLOAK_PASSWORD=P4ssW0rd!
+            - KEYCLOAK_STATISTICS=all
+            - DB_VENDOR=POSTGRES
+            - DB_ADDR=database
+            - DB_PORT=5432
+            - DB_DATABASE=keycloak
+            - DB_USER=admin
+            - DB_SCHEMA=public
+            - DB_PASSWORD=P4ssW0rd!
+        networks:
+            - network
+        ports:
+            - 8075:8080
+        volumes:
+            - keycloak:/data
+    database:
+        image: postgres
+        container_name: keycloak-database
+        restart: always
+        environment:
+            - POSTGRES_DB=keycloak
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=P4ssW0rd!
+            - POSTGRES_ROOT_PASSWORD=P4ssW0rd!
+        networks:
+            - network
+        ports:
+            - 5432:5432
+        volumes:
+            - keycloak-database:/var/lib/postgresql
+            - keycloak-database-data:/var/lib/postgresql/data
+networks:
+    network:
+volumes:
+    keycloak:
+    keycloak-database:
+    keycloak-database-data:

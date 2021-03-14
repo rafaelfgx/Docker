@@ -1,0 +1,74 @@
+version: "3.7"
+
+services:
+    influxdb:
+        image: influxdb
+        container_name: influxdb
+        restart: always
+        environment:
+            - INFLUXDB_ADMIN_PASSWORD=P4ssW0rd!
+            - INFLUXDB_ADMIN_USER=admin
+        networks:
+            - network
+        ports:
+            - 8086:8086
+        volumes:
+            - influxdb:/var/lib/influxdb:rw
+    telegraf:
+        image: telegraf
+        container_name: telegraf
+        restart: always
+        depends_on:
+            - influxdb
+        command: -config /etc/telegraf/telegraf.conf
+        environment:
+            - INFLUXDB_URL=http://influxdb:8086
+            - INFLUXDB_USERNAME=admin
+            - INFLUXDB_PASSWORD=P4ssW0rd!
+        networks:
+            - network
+        ports:
+            - 8092:8092/udp
+            - 8094:8094
+            - 8125:8125/udp
+        volumes:
+            - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    kapacitor:
+        image: kapacitor
+        container_name: kapacitor
+        restart: always
+        depends_on:
+            - influxdb
+        environment:
+            - KAPACITOR_HOSTNAME=kapacitor
+            - KAPACITOR_INFLUXDB_0_URLS_0=http://influxdb:8086
+        networks:
+            - network
+        ports:
+            - 9092:9092
+        volumes:
+            - kapacitor:/var/lib/kapacitor:rw
+    chronograf:
+        image: chronograf
+        container_name: chronograf
+        restart: always
+        depends_on:
+            - influxdb
+            - kapacitor
+        environment:
+            - INFLUXDB_URL=http://influxdb:8086
+            - INFLUXDB_USERNAME=admin
+            - INFLUXDB_PASSWORD=P4ssW0rd!
+            - KAPACITOR_URL=http://kapacitor:9092
+        networks:
+            - network
+        ports:
+            - 8888:8888
+        volumes:
+            - chronograf:/var/lib/chronograf:rw
+networks:
+    network:
+volumes:
+    influxdb:
+    kapacitor:
+    chronograf:

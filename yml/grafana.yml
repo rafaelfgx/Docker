@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        restart: always
+        environment:
+            - GF_USERS_ALLOW_SIGN_UP='true'
+        networks:
+            - network
+        ports:
+            - 3000:3000
+        volumes:
+            - grafana:/var/lib/grafana
+networks:
+    network:
+volumes:
+    grafana:

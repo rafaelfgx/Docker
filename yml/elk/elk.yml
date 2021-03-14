@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+        container_name: elasticsearch
+        restart: always
+        environment:
+            - ES_JAVA_OPTS=-Xms1g -Xmx1g
+            - discovery.type=single-node
+        networks:
+            - network
+        ports:
+            - 9200:9200
+            - 9300:9300
+        volumes:
+            - elasticsearch:/usr/share/elasticsearch/data
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.8.0
+        container_name: kibana
+        restart: always
+        depends_on:
+            - elasticsearch
+        networks:
+            - network
+        ports:
+            - 5601:5601
+    logstash:
+        image: docker.elastic.co/logstash/logstash:7.8.0
+        container_name: logstash
+        restart: always
+        depends_on:
+            - elasticsearch
+        networks:
+            - network
+        ports:
+            - 5000:5000
+            - 9600:9600
+        volumes:
+            - .\logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+            - .\logstash.yml:/usr/share/logstash/config/logstash.yml
+    elastic-apm:
+        image: docker.elastic.co/apm/apm-server:7.8.0
+        container_name: elastic-apm
+        restart: always
+        depends_on:
+            - elasticsearch
+            - kibana
+        cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+        cap_drop: ["ALL"]
+        networks:
+            - network
+        ports:
+            - 8200:8200
+        command: >
+            apm-server -e
+            -E apm-server.rum.enabled=true
+            -E setup.kibana.host=kibana:5601
+            -E setup.template.settings.index.number_of_replicas=0
+            -E apm-server.kibana.enabled=true
+            -E apm-server.kibana.host=kibana:5601
+            -E output.elasticsearch.hosts=["elasticsearch:9200"]
+networks:
+    network:
+volumes:
+    elasticsearch:

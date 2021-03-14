@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+    rethinkdb:
+        image: rethinkdb
+        container_name: rethinkdb
+        restart: always
+        networks:
+            - network
+        ports:
+            - 8080:8080
+        volumes:
+            - rethinkdb:/data
+networks:
+    network:
+volumes:
+    rethinkdb:

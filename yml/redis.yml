@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+    redis:
+        image: redis
+        container_name: redis
+        restart: always
+        command: redis-server --requirepass P4ssW0rd!
+        networks:
+            - network
+        ports:
+            - 6379:6379
+        volumes:
+            - redis:/data
+networks:
+    network:
+volumes:
+    redis:

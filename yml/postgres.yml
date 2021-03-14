@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+    postgres:
+        image: postgres
+        container_name: postgres
+        restart: always
+        environment:
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=P4ssW0rd!
+            - TZ=GMT
+        networks:
+            - network
+        ports:
+            - 5432:5432
+        volumes:
+            - postgres:/var/lib/postgresql/data
+    admin:
+        image: dpage/pgadmin4
+        container_name: postgres-admin
+        restart: always
+        depends_on:
+            - postgres
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+            - PGADMIN_DEFAULT_PASSWORD=P4ssW0rd!
+        networks:
+            - network
+        ports:
+            - 16543:80
+networks:
+    network:
+volumes:
+    postgres:

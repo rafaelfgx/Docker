@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+    couchdb:
+        image: couchdb
+        container_name: couchdb
+        restart: always
+        environment:
+            - COUCHDB_PASSWORD=P4ssW0rd!
+            - COUCHDB_USER=admin
+        networks:
+            - network
+        ports:
+            - 5984:5984
+        volumes:
+            - couchdb:/opt/couchdb/data
+networks:
+    network:
+volumes:
+    couchdb:
